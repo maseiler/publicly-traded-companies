@@ -22,9 +22,12 @@ def find_companies(company_name: str) -> {}:
     soup = BeautifulSoup(html, 'lxml')
     categories = soup.find_all('div', {'class': 'ticker__set'})
     for category in categories:  # either 'Symbols' or 'Private Company'
-        c = category.find_all('span', {'class': 'header__text'})
+        loading = category.find('div', {'class': 'loading', 'style': 'display: none;'})
+        if loading is None:
+            continue
+        c = category.find('span', {'class': 'header__text'})
         # scrape public companies
-        if c[0].getText().strip('\n') == 'Symbols':
+        if c.getText().strip('\n') == 'Symbols':
             symbols = []
             table_rows = category.find_all('td')
             for table_row in table_rows:
@@ -43,7 +46,7 @@ def find_companies(company_name: str) -> {}:
                     symbols.append(company_result)
             result['Public Companies'] = symbols
         # scrape private companies
-        elif c[0].getText().strip('\n') == 'Private Companies':
+        elif c.getText().strip('\n') == 'Private Companies':
             symbols = []
             table_rows = category.find_all('td')
             for table_row in table_rows:
